@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                      String                  @id @default(auto()) @map("_id") @db.ObjectId
+  kindeId                 String                  @unique
+  email                   String                  @unique
+  isOnboarded             Boolean   @default(false)
+  onboardingstep          OnboardingStep @default(ONE)
+  profile                 Profile?
+  jobApplicationDataStore JobApplicationDataStore?
+  subscription  Subscription?  @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String?   @db.ObjectId 
+  userNotifications       UserNotification[]
+  
+}
+
+enum OnboardingStep {
+  ONE
+  TWO
+  THREE
+  COMPLETED
+}
+
+model Profile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId String   @db.ObjectId @unique
+  name      String
+  bio       String  
+  email     String
+  gender     String
+  location   String
+  salary      String
+  jobtitle String
+  document   Document  @relation(fields: [documentId], references: [id])
+  documentId String   @db.ObjectId @unique
+}
+
+model Document {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  contentType String
+  data        Bytes
+  uploadedAt  DateTime @default(now())
+  Profile Profile[]
+} 
+
+model JobApplicationDataStore {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId String   @db.ObjectId @unique
+  jobs      Job[]
+}
+
+model Job {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobApplicationStore  JobApplicationDataStore @relation(fields: [jobAppDataStoreId], references: [id])
+  jobAppDataStoreId    String   @db.ObjectId
+  title                String
+  company              String
+  link                 String
+  status               JobStatus // e.g. APPLIED, SHORTLISTED, HIRED
+  dateApplied          DateTime @default(now())
+}
+
+
+
+model Subscription {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+
+  plan        Plan       @default(FREE)
+  active      Boolean    @default(true)
+  startedAt   DateTime   @default(now())
+  expiresAt   DateTime
+  stripecustomerId  String?
+
+  Account Account[]
+}
+
+
+
+
+model Notification {
+  id                String            @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  message           String
+  createdAt         DateTime          @default(now())
+  userNotifications UserNotification[]
+}
+
+model UserNotification {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  notification   Notification  @relation(fields: [notificationId], references: [id])
+  notificationId String        @db.ObjectId
+  account        Account       @relation(fields: [accountId], references: [id])
+  accountId      String        @db.ObjectId
+  read           Boolean       @default(false)
+  receivedAt     DateTime      @default(now())
+}
+
+enum Role {
+  CLIENT
+  WORKSCOUT
+  ADMIN
+}
+
+enum JobStatus {
+  APPLIED
+  SHORTLISTED
+  HIRED
+  REJECTED
+}
+
+
+enum Plan {
+  FREE
+  BASIC
+  STANDARD
+  PREMIUM
+  PRO
+}
