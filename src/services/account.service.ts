@@ -50,8 +50,6 @@ export async function getaccountSubscriptionStatus(kindeId: string): Promise<Acc
 export async function createaccountSubscription(subscriptionData: {
     plan: "FREE" | "BASIC" | "PRO" | "STANDARD";
     stripecustomerId?: string;
-    startedAt: Date;
-    expiresAt: Date;
     email: string;
 }): Promise<AccountType> {
     try {
@@ -61,8 +59,6 @@ export async function createaccountSubscription(subscriptionData: {
             const subscription = await tx.subscription.create({
                 data: {
                     plan: subscriptionData.plan,
-                    startedAt: subscriptionData.startedAt,
-                    expiresAt: subscriptionData.expiresAt,
                     stripecustomerId: subscriptionData.stripecustomerId
                 }
             })
