@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 
-import { createAccount } from "../controllers/account.controller";
+import { createAccount, onboardingStatusController } from "../controllers/account.controller";
 import { upload } from "../utils/fileUpload/multerupload";
 import { createProfile } from "../controllers/profile.controller";
 import {
@@ -38,6 +38,7 @@ routes.post("/subscription",requireAuthAndEnsureAccount, validate(createAccountS
 routes.post("/status", requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), handleGetSubscriptionStatus);
 routes.put("/subscription", requireAuthAndEnsureAccount,  validate(updateSubscriptionSchema), handleUpdateSubscription);
 
+routes.get("/onboardingstatus",requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), onboardingStatusController);
 
 
 

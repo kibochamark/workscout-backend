@@ -35,7 +35,7 @@ export async function getaccountSubscriptionStatus(kindeId: string): Promise<Acc
 
         return {
             error: "",
-            data: acc.subscription.active
+            data: acc.subscription.active ? true :false
         }
 
     } catch (e: any) {

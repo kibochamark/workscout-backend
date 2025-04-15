@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../utils/prisma/client";
+import { getOnboardingStatus } from "../services/onboarding.service";
 
 export async function createAccount(req: Request, res: Response): Promise<void> {
   console.log(req.body, "body");
@@ -15,7 +16,7 @@ export async function createAccount(req: Request, res: Response): Promise<void> 
     const account = await prisma.account.create({
       data: {
         kindeId,
-        email        
+        email
       },
     });
 
@@ -29,7 +30,25 @@ export async function createAccount(req: Request, res: Response): Promise<void> 
 
 
 
-// get account subscription status
+// get account onboarding status
+
+
+
+export const onboardingStatusController = async (req: Request, res: Response): Promise<any> => {
+  const {kindeId} = req.body;
+
+  const { error, data } = await getOnboardingStatus(kindeId);
+  try {
+    if (error) {
+      return res.status(404).json({ error: error });
+    }
+
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error while checking onboarding status." });
+  }
+}
+
 
 
 
