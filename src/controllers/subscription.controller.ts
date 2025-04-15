@@ -78,6 +78,7 @@ export const handleUpdateSubscription = async (req: Request, res: Response): Pro
         let subscriptionData: {
             plan?: "FREE" | "BASIC" | "PRO" | "STANDARD";
             stripecustomerId?: string
+            active?:boolean
         } = {
             ...filtered,
         };

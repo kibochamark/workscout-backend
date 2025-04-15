@@ -167,6 +167,7 @@ export async function getaccountbycustomerId(customerId: string): Promise<Accoun
 export async function getupdateAccountSubscription(subscriptionData: {
     plan?: "FREE" | "BASIC" | "PRO" | "STANDARD";
     stripecustomerId?: string
+    active?:boolean
 }, email: string): Promise<AccountType> {
     try {
         // fetch user acc

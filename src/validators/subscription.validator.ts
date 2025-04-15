@@ -18,7 +18,8 @@ export const createAccountSubscriptionSchema = Joi.object({
 export const updateSubscriptionSchema = Joi.object({
   plan: Joi.string().valid("FREE", "BASIC", "PRO", "STANDARD").required(),
   stripecustomerId: Joi.string().required(),
-  email:Joi.string().required()
+  email:Joi.string().required(),
+  active:Joi.boolean().optional()
 });
 
 export const getSubscriptionStatusSchema = Joi.object({
