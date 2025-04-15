@@ -38,7 +38,7 @@ routes.post("/subscription",requireAuthAndEnsureAccount, validate(createAccountS
 routes.post("/status", requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), handleGetSubscriptionStatus);
 routes.put("/subscription", requireAuthAndEnsureAccount,  validate(updateSubscriptionSchema), handleUpdateSubscription);
 
-routes.get("/onboardingstatus",requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), onboardingStatusController);
+routes.post("/onboardingstatus",requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), onboardingStatusController);
 
 
 
