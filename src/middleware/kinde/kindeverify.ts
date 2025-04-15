@@ -15,6 +15,7 @@ function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
     client.getSigningKey(header.kid, (err, key) => {
         if (err) return callback(err);
         const signingKey = key?.getPublicKey();
+        console.log(signingKey, "key")
         callback(null, signingKey);
     });
 }

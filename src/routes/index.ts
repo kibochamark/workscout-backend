@@ -19,6 +19,7 @@ import {
   getSubscriptionStatusSchema,
   updateSubscriptionSchema
 } from "../validators/subscription.validator";
+import { requireAuthAndEnsureAccount } from "../middleware/kinde/kindeverify";
 
 const routes = Router();
 
@@ -31,11 +32,11 @@ routes.post("/create", upload.single("file"), createProfile);
 
 
 
-routes.get("/account/:email", validate(getAccountByEmailSchema, "params"), handleGetAccountByEmail);
-routes.get("/customer/:customerId", validate(getAccountByCustomerIdSchema, "params"), handleGetAccountByCustomerId);
-routes.post("/create", validate(createAccountSubscriptionSchema), handleCreateAccountSubscription);
-routes.get("/status/:kindeId", validate(getSubscriptionStatusSchema, "params"), handleGetSubscriptionStatus);
-routes.put("/update", validate(updateSubscriptionSchema), handleUpdateSubscription);
+routes.get("/account/:email", requireAuthAndEnsureAccount, validate(getAccountByEmailSchema, "params"), handleGetAccountByEmail);
+routes.get("/customer/:customerId", requireAuthAndEnsureAccount,validate(getAccountByCustomerIdSchema, "params"), handleGetAccountByCustomerId);
+routes.post("/subscription",requireAuthAndEnsureAccount, validate(createAccountSubscriptionSchema), handleCreateAccountSubscription);
+routes.post("/status", requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), handleGetSubscriptionStatus);
+routes.put("/subscription", requireAuthAndEnsureAccount,  validate(updateSubscriptionSchema), handleUpdateSubscription);
 
 
 
