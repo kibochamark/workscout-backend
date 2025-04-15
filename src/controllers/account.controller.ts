@@ -43,7 +43,7 @@ export const onboardingStatusController = async (req: Request, res: Response): P
       return res.status(404).json({ error: error });
     }
 
-    res.status(200).json(data);
+    res.status(200).json({data:data});
   } catch (error) {
     res.status(500).json({ error: "Internal server error while checking onboarding status." });
   }
