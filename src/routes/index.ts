@@ -32,8 +32,8 @@ routes.post("/create", upload.single("file"), createProfile);
 
 
 
-routes.get("/account/:email", requireAuthAndEnsureAccount, validate(getAccountByEmailSchema, "params"), handleGetAccountByEmail);
-routes.get("/customer/:customerId", requireAuthAndEnsureAccount,validate(getAccountByCustomerIdSchema, "params"), handleGetAccountByCustomerId);
+routes.get("/account/:email", validate(getAccountByEmailSchema, "params"), handleGetAccountByEmail);
+routes.get("/customer/:customerId", validate(getAccountByCustomerIdSchema, "params"), handleGetAccountByCustomerId);
 routes.post("/subscription", validate(createAccountSubscriptionSchema), handleCreateAccountSubscription);
 routes.post("/status", requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), handleGetSubscriptionStatus);
 routes.put("/subscription",  validate(updateSubscriptionSchema), handleUpdateSubscription);
