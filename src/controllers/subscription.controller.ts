@@ -1,81 +1,101 @@
 import { Request, Response } from "express";
 import {
-  getaccountbyemail,
-  getaccountbycustomerId,
-  createaccountSubscription,
-  getaccountSubscriptionStatus,
-  getupdateAccountSubscription
+    getaccountbyemail,
+    getaccountbycustomerId,
+    createaccountSubscription,
+    getaccountSubscriptionStatus,
+    getupdateAccountSubscription
 } from "../services/account.service";
+import { Subscription } from "@prisma/client";
 
 export const handleGetAccountByEmail = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const { email } = req.params;
-    const result = await getaccountbyemail(email);
+    try {
+        const { email } = req.params;
+        const result = await getaccountbyemail(email);
 
-    if (result.error) {
-      return res.status(404).json({ error: result.error });
+        if (result.error) {
+            return res.status(404).json({ error: result.error });
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error while fetching account by email." });
     }
-
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error while fetching account by email." });
-  }
 };
 
 export const handleGetAccountByCustomerId = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const { customerId } = req.params;
-    const result = await getaccountbycustomerId(customerId);
+    try {
+        const { customerId } = req.params;
+        const result = await getaccountbycustomerId(customerId);
 
-    if (result.error) {
-      return res.status(404).json({ error: result.error });
+        if (result.error) {
+            return res.status(404).json({ error: result.error });
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error while fetching account by Stripe customer ID." });
     }
-
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error while fetching account by Stripe customer ID." });
-  }
 };
 
 export const handleCreateAccountSubscription = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const result = await createaccountSubscription(req.body);
+    try {
+        const result = await createaccountSubscription(req.body);
 
-    if (result.error) {
-      return res.status(400).json({ error: result.error });
+        if (result.error) {
+            return res.status(400).json({ error: result.error });
+        }
+
+        res.status(201).json(result);
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error while creating account subscription." });
     }
-
-    res.status(201).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error while creating account subscription." });
-  }
 };
 
 export const handleGetSubscriptionStatus = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const { kindeId } = req.body;
-    const result = await getaccountSubscriptionStatus(kindeId);
+    try {
+        const { kindeId } = req.body;
+        const result = await getaccountSubscriptionStatus(kindeId);
 
-    if (result.error) {
-      return res.status(404).json({ error: result.error });
+        if (result.error) {
+            return res.status(404).json({ error: result.error });
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error while checking subscription status." });
     }
-
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error while checking subscription status." });
-  }
 };
 
-export const handleUpdateSubscription = async (req: Request, res: Response):Promise<any> => {
-  try {
-    const result = await getupdateAccountSubscription(req.body);
+export const handleUpdateSubscription = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const filtered = Object.fromEntries(
+            Object.entries(req.body).filter(([key]) => !key.includes("email"))
+        );
 
-    if (result.error) {
-      return res.status(400).json({ error: result.error });
+    
+
+        let subscriptionData: {
+            plan?: "FREE" | "BASIC" | "PRO" | "STANDARD";
+            stripecustomerId?: string;
+            startedAt?: Date;
+            expiresAt: Date;
+        } = {
+           
+            expiresAt: new Date(), // ensure proper Date object,,
+            ...filtered,
+        };
+
+
+        let { email } = req.body
+        const result = await getupdateAccountSubscription(subscriptionData, email);
+
+        if (result.error) {
+            return res.status(400).json({ error: result.error });
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error while updating subscription." });
     }
-
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error while updating subscription." });
-  }
 };

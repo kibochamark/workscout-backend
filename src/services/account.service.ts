@@ -172,26 +172,32 @@ export async function getupdateAccountSubscription(subscriptionData: {
     plan?: "FREE" | "BASIC" | "PRO" | "STANDARD";
     stripecustomerId?: string;
     startedAt?: Date;
-    expiresAt?: Date;
-}): Promise<AccountType> {
+    expiresAt: Date;
+}, email:string): Promise<AccountType> {
     try {
         // fetch user acc
-        const sub = await prisma.subscription.findFirst({
-            where: {
-                stripecustomerId:subscriptionData.stripecustomerId
+        const acc = await prisma.account.findUnique({
+            where:{
+                email
+            },
+            select:{
+                subscriptionId:true
             }
         })
 
-        if (!sub) {
+        if (!acc) {
             throw new Error("subscription for the acc is not found")
         }
 
 
-        const updatedsub = await prisma.subscription.update({
+        const updatedsub = await prisma.subscription.upsert({
             where:{
-                id:sub.id
+                id:acc.subscriptionId
             },
-            data:{
+            create:{
+                ...subscriptionData
+            },
+            update:{
                 ...subscriptionData
             }
         })
