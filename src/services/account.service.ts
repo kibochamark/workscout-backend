@@ -166,9 +166,7 @@ export async function getaccountbycustomerId(customerId: string): Promise<Accoun
 
 export async function getupdateAccountSubscription(subscriptionData: {
     plan?: "FREE" | "BASIC" | "PRO" | "STANDARD";
-    stripecustomerId?: string;
-    startedAt?: Date;
-    expiresAt: Date;
+    stripecustomerId?: string
 }, email: string): Promise<AccountType> {
     try {
         // fetch user acc
@@ -187,24 +185,35 @@ export async function getupdateAccountSubscription(subscriptionData: {
 
 
         const [updatedsub, accountupdated] = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-            const updatedsub = await tx.subscription.upsert({
-                where: {
-                    id: acc.subscriptionId
-                },
-                create: {
-                    ...subscriptionData
-                },
-                update: {
-                    ...subscriptionData
-                },
-            })
+            let updatedsub
+            if (acc.subscriptionId) {
+                updatedsub = await tx.subscription.upsert({
+                    where: {
+                        id: acc.subscriptionId
+                    },
+                    create: {
+                        ...subscriptionData
+                    },
+                    update: {
+                        ...subscriptionData
+                    },
+                })
+            }else{
+                updatedsub=await tx.subscription.create({
+                    data:{
+                        ...subscriptionData
+                    }
+                })
+            }
+
 
             const accountupdated = await tx.account.update({
                 where: {
                     email
                 },
                 data: {
-                    subscriptionId: updatedsub.id
+                    subscriptionId: updatedsub.id,
+                    isOnboarded:true
                 }
             })
 

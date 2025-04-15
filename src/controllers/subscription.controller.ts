@@ -77,18 +77,16 @@ export const handleUpdateSubscription = async (req: Request, res: Response): Pro
 
         let subscriptionData: {
             plan?: "FREE" | "BASIC" | "PRO" | "STANDARD";
-            stripecustomerId?: string;
-            startedAt?: Date;
-            expiresAt: Date;
+            stripecustomerId?: string
         } = {
-           
-            expiresAt: new Date(), // ensure proper Date object,,
             ...filtered,
         };
 
 
         let { email } = req.body
         const result = await getupdateAccountSubscription(subscriptionData, email);
+
+        console.log(result, "result")
 
         if (result.error) {
             return res.status(400).json({ error: result.error });
