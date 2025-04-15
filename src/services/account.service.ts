@@ -35,7 +35,7 @@ export async function getaccountSubscriptionStatus(kindeId: string): Promise<Acc
 
         return {
             error: "",
-            data: acc.subscription.active ? true :false
+            data: acc.subscription.active ? true : false
         }
 
     } catch (e: any) {
@@ -68,11 +68,11 @@ export async function createaccountSubscription(subscriptionData: {
             })
 
             const account = await tx.account.update({
-                where:{
-                    email:subscriptionData.email
+                where: {
+                    email: subscriptionData.email
                 },
-                data:{
-                    subscriptionId:subscription.id
+                data: {
+                    subscriptionId: subscription.id
                 }
             })
 
@@ -140,8 +140,8 @@ export async function getaccountbycustomerId(customerId: string): Promise<Accoun
         // fetch user acc
         const acc = await prisma.account.findFirst({
             where: {
-                subscription:{
-                    stripecustomerId:customerId
+                subscription: {
+                    stripecustomerId: customerId
                 }
             }
         })
@@ -173,15 +173,15 @@ export async function getupdateAccountSubscription(subscriptionData: {
     stripecustomerId?: string;
     startedAt?: Date;
     expiresAt: Date;
-}, email:string): Promise<AccountType> {
+}, email: string): Promise<AccountType> {
     try {
         // fetch user acc
         const acc = await prisma.account.findUnique({
-            where:{
+            where: {
                 email
             },
-            select:{
-                subscriptionId:true
+            select: {
+                subscriptionId: true
             }
         })
 
@@ -190,17 +190,32 @@ export async function getupdateAccountSubscription(subscriptionData: {
         }
 
 
-        const updatedsub = await prisma.subscription.upsert({
-            where:{
-                id:acc.subscriptionId
-            },
-            create:{
-                ...subscriptionData
-            },
-            update:{
-                ...subscriptionData
-            }
+        const [updatedsub, accountupdated] = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+            const updatedsub = await tx.subscription.upsert({
+                where: {
+                    id: acc.subscriptionId
+                },
+                create: {
+                    ...subscriptionData
+                },
+                update: {
+                    ...subscriptionData
+                },
+            })
+
+            const accountupdated = await tx.account.update({
+                where: {
+                    email
+                },
+                data: {
+                    subscriptionId: updatedsub.id
+                }
+            })
+
+            return [updatedsub, accountupdated]
         })
+
+
 
 
 
