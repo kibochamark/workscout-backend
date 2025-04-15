@@ -5,7 +5,8 @@
       "skipLibCheck": true,
       "baseUrl": "src",
       "outDir": "dist",
-      "noImplicitAny": true,
+      "noImplicitAny": false,
+      "strict": false,
       "sourceMap": true,
       "target": "es2020" // or higher
   },

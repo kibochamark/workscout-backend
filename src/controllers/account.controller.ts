@@ -27,3 +27,24 @@ export async function createAccount(req: Request, res: Response): Promise<void> 
 }
 
 
+
+
+// get account subscription status
+
+
+
+// create account subscription
+
+
+
+// get account by email
+
+
+
+// get customer by cust id
+
+
+
+// update a/c subscription
+
+

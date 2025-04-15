@@ -79,7 +79,7 @@ model Subscription {
   plan        Plan       @default(FREE)
   active      Boolean    @default(true)
   startedAt   DateTime   @default(now())
-  expiresAt   DateTime
+  expiresAt   DateTime?
   stripecustomerId  String?
 
   Account Account[]
