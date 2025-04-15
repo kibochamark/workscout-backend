@@ -53,7 +53,7 @@ export const handleCreateAccountSubscription = async (req: Request, res: Respons
 
 export const handleGetSubscriptionStatus = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { kindeId } = req.params;
+    const { kindeId } = req.body;
     const result = await getaccountSubscriptionStatus(kindeId);
 
     if (result.error) {

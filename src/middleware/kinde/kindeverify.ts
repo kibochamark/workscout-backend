@@ -44,6 +44,7 @@ export const requireAuthAndEnsureAccount = (
             return;
         }
 
+
         const { sub: kindeId, email } = decoded as KindeTokenPayload;
 
         if (!kindeId || !email) {
