@@ -40,7 +40,9 @@ export const handleGetAccountByCustomerId = async (req: Request, res: Response):
 
 export const handleCreateAccountSubscription = async (req: Request, res: Response): Promise<any> => {
     try {
+        // console.log(req.body)
         const result = await createaccountSubscription(req.body);
+        // console.log(result)
 
         if (result.error) {
             return res.status(400).json({ error: result.error });
