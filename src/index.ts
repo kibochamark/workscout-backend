@@ -22,7 +22,12 @@ const app = express()
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors(
+    {
+        origin: 'http://localhost:3000',
+        credentials: true, // if you're using cookies
+}
+));
 app.use(compression());
 app.use(cookieParser());
 app.use(morgan('dev'))
