@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 
-import { createAccount, onboardingStatusController } from "../controllers/account.controller";
+import { createAccount, onboardingStatusController, UpdateAccountOnboardingController } from "../controllers/account.controller";
 import { upload } from "../utils/fileUpload/multerupload";
 import { createProfile } from "../controllers/profile.controller";
 import {
@@ -17,7 +17,8 @@ import {
   getAccountByCustomerIdSchema,
   createAccountSubscriptionSchema,
   getSubscriptionStatusSchema,
-  updateSubscriptionSchema
+  updateSubscriptionSchema,
+  updateAccountOnboardingSchema
 } from "../validators/subscription.validator";
 import { requireAuthAndEnsureAccount } from "../middleware/kinde/kindeverify";
 
@@ -39,7 +40,7 @@ routes.post("/status", requireAuthAndEnsureAccount, validate(getSubscriptionStat
 routes.put("/subscription",  validate(updateSubscriptionSchema), handleUpdateSubscription);
 
 routes.post("/onboardingstatus",requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), onboardingStatusController);
-
+routes.put("/updateonboardingstatus",requireAuthAndEnsureAccount, validate(updateAccountOnboardingSchema), UpdateAccountOnboardingController)
 
 
 // routes.get("/protected", requireAuthAndEnsureAccount, (req: Request, res: Response) => {

@@ -68,7 +68,9 @@ export async function createaccountSubscription(subscriptionData: {
                     email: subscriptionData.email
                 },
                 data: {
-                    subscriptionId: subscription.id
+                    subscriptionId: subscription.id,
+                    onboardingstep:"COMPLETED",
+                    isOnboarded:true
                 }
             })
 
