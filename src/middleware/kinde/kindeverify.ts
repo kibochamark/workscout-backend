@@ -45,7 +45,6 @@ export const requireAuthAndEnsureAccount = (
             return;
         }
 
-        console.log(decoded, "dec")
         const { sub: kindeId, email, name } = decoded as KindeTokenPayload;
 
 

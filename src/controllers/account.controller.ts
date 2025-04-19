@@ -4,10 +4,13 @@ import { getOnboardingStatus, updateOnboardingStatus } from "../services/onboard
 
 export async function createAccount(req: Request, res: Response): Promise<void> {
   console.log(req.body, "body");
-  const { kindeId, email, name } = req.body;
+  const { id, email, 
+
+
+given_name } = req.body;
 
   try {
-    const existing = await prisma.account.findUnique({ where: { kindeId } });
+    const existing = await prisma.account.findUnique({ where: { kindeId:id } });
     if (existing) {
       res.status(200).json(existing);
       return;
@@ -15,9 +18,9 @@ export async function createAccount(req: Request, res: Response): Promise<void> 
 
     const account = await prisma.account.create({
       data: {
-        kindeId,
+        kindeId:id,
         email,
-        name
+        name:given_name
       },
     });
 
