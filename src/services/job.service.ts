@@ -135,7 +135,7 @@ export async function getJobs(): Promise<ResponseType> {
                     select:{
                         account:{
                             select:{
-                                name:true
+                                email:true
                             }
                         }
                     }

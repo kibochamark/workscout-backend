@@ -22,7 +22,6 @@ function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
 interface KindeTokenPayload {
     sub: string; // kindeId
     email: string;
-    name:string;
 }
 
 export const requireAuthAndEnsureAccount = (
@@ -45,7 +44,8 @@ export const requireAuthAndEnsureAccount = (
             return;
         }
 
-        const { sub: kindeId, email, name } = decoded as KindeTokenPayload;
+        console.log(decoded, "dec")
+        const { sub: kindeId, email } = decoded as KindeTokenPayload;
 
 
         if (!kindeId || !email) {
@@ -55,6 +55,16 @@ export const requireAuthAndEnsureAccount = (
 
         try {
             let account = await prisma.account.findUnique({ where: { kindeId } });
+
+            if (!account) {
+                account = await prisma.account.create({
+                    data: {
+                        kindeId,
+                        email,
+                        isOnboarded: false
+                    },
+                });
+            }
 
         
             (req as any).user = account;

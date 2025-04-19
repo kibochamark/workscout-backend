@@ -3,14 +3,11 @@ import { prisma } from "../utils/prisma/client";
 import { getOnboardingStatus, updateOnboardingStatus } from "../services/onboarding.service";
 
 export async function createAccount(req: Request, res: Response): Promise<void> {
-  console.log(req.body, "body");
-  const { id, email, 
-
-
-given_name } = req.body;
+  // console.log(req.body, "body");
+  const { kindeId, email } = req.body;
 
   try {
-    const existing = await prisma.account.findUnique({ where: { kindeId:id } });
+    const existing = await prisma.account.findUnique({ where: { kindeId } });
     if (existing) {
       res.status(200).json(existing);
       return;
@@ -18,9 +15,8 @@ given_name } = req.body;
 
     const account = await prisma.account.create({
       data: {
-        kindeId:id,
-        email,
-        name:given_name
+        kindeId,
+        email
       },
     });
 
@@ -30,21 +26,6 @@ given_name } = req.body;
     res.status(500).json({ error: "Failed to create account" });
   }
 }
-
-
-export async function getAccount(req: Request, res: Response): Promise<void> {
- 
-  try {
-    const account = await prisma.account.findMany();
-
-
-    res.status(201).json(account);
-  } catch (error) {
-    console.error("Create account error:", error);
-    res.status(500).json({ error: "Failed to create account" });
-  }
-}
-
 
 
 
