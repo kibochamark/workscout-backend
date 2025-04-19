@@ -11,6 +11,7 @@ model Account {
   id                      String                   @id @default(auto()) @map("_id") @db.ObjectId
   kindeId                 String                   @unique
   email                   String                   @unique
+  name                    String
   isOnboarded             Boolean                  @default(false)
   onboardingstep          OnboardingStep           @default(ONE)
   profile                 Profile?
@@ -73,7 +74,7 @@ model Job {
   jobAppDataStoreId   String                  @db.ObjectId
 
   workscout   Account   @relation(fields: [workscoutId], references: [id], name: "workscout")
-  workscoutId String    @unique @db.ObjectId
+  workscoutId String    @db.ObjectId
   category    String
   title       String
   bookmarked  Boolean
@@ -122,6 +123,7 @@ enum JobStatus {
   SHORTLISTED
   HIRED
   REJECTED
+
 }
 
 enum Plan {

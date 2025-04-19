@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 
-import { createAccount, onboardingStatusController, UpdateAccountOnboardingController } from "../controllers/account.controller";
+import { createAccount, getAccount, onboardingStatusController, UpdateAccountOnboardingController } from "../controllers/account.controller";
 import { upload } from "../utils/fileUpload/multerupload";
 import { createProfile } from "../controllers/profile.controller";
 import {
@@ -36,6 +36,7 @@ routes.post("/create", upload.single("file"), createProfile);
 
 
 routes.get("/account/:email", validate(getAccountByEmailSchema, "params"), handleGetAccountByEmail);
+routes.get("/accounts", getAccount);
 routes.get("/customer/:customerId", validate(getAccountByCustomerIdSchema, "params"), handleGetAccountByCustomerId);
 routes.post("/subscription", validate(createAccountSubscriptionSchema), handleCreateAccountSubscription);
 routes.post("/status", requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), handleGetSubscriptionStatus);

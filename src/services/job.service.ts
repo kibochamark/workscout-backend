@@ -131,7 +131,15 @@ export async function getJobs(): Promise<ResponseType> {
 
         const jobs = await prisma.job.findMany({
             include: {
-                jobApplicationStore: true
+                jobApplicationStore: {
+                    select:{
+                        account:{
+                            select:{
+                                name:true
+                            }
+                        }
+                    }
+                }
             }
         })
 
