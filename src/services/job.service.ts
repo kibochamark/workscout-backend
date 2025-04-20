@@ -7,23 +7,26 @@ import { StringLiteral } from "typescript";
 type JobApplication = {
     clientAccountId: string;
     workscoutAccountId: string;
-    title: string;
+    jobName: string;
     bookmarked?: boolean
     company: string;
     status: JobStatus;
     category: string;
-    link?: string;
+    appliedDate:  Date;
+    deadlineDate: Date;
 }
+
+
+
 
 type UpdateJob = {
     jobId: string;
-    title?: string;
+    jobName: string;
+    bookmarked?: boolean
     company?: string;
-    bookmarked?: boolean;
-    category?: string;
-    link?: string;
     status?: JobStatus;
-    workscoutId?: string
+    category?: string;
+    deadlineDate?: Date;
 
 }
 
@@ -37,48 +40,29 @@ type ResponseType = {
 export async function createJobApplication(jobData: JobApplication): Promise<ResponseType> {
     try {
 
-        const [jostrore, job] = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-            let jobstore = await tx.jobApplicationDataStore.findFirst({
-                where: {
-                    accountId: jobData.clientAccountId
+        const [jobapplication] = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+            let jobapplication = await tx.jobApplication.create({
+                data:{
+                    jobName:jobData.jobName,
+                    category:jobData.category,
+                    clientId:jobData.clientAccountId,
+                    workscoutId:jobData.workscoutAccountId,
+                    status:jobData.status,
+                    company:jobData.company,
+                    appliedDate:jobData.appliedDate,
+                    deadlineDate:jobData.deadlineDate,
+                    bookmarked:jobData.bookmarked
                 }
             })
 
   
-            if (!jobstore) {
-
-                // we create a job store for the client
-                jobstore = await tx.jobApplicationDataStore.create({
-                    data: {
-                        accountId: jobData.clientAccountId
-                    }
-                })
-
-
-
-            }
-            // we then link the store to a job
-            const job = await tx.job.create({
-                data: {
-                    title: jobData.title,
-                    company: jobData.company,
-                    jobAppDataStoreId: jobstore.id,
-                    workscoutId: jobData.workscoutAccountId,
-                    bookmarked: jobData.bookmarked,
-                    link: jobData.link,
-                    category: jobData.category.toUpperCase(),
-                    status: jobData.status
-                }
-            })
-
-
-            return [jobstore, job]
+            return [jobapplication]
         })
 
 
         return {
             error: "",
-            data: { job, jostrore },
+            data: { jobapplication},
             status: 201
         }
 
@@ -95,18 +79,17 @@ export async function createJobApplication(jobData: JobApplication): Promise<Res
 export async function updateJob(jobData: UpdateJob): Promise<ResponseType> {
     try {
 
-        const updatedjob = await prisma.job.update({
+        const updatedjob = await prisma.jobApplication.update({
             where: {
                 id: jobData.jobId
             },
             data: {
-                title: jobData.title,
+                jobName: jobData.jobName,
                 company: jobData.company,
-                workscoutId: jobData.workscoutId,
                 bookmarked: jobData.bookmarked,
-                link: jobData.link,
                 category:jobData.category.toUpperCase(),
-                status: jobData.status
+                status: jobData.status,
+                deadlineDate:jobData.deadlineDate
             }
         })
 
@@ -129,19 +112,7 @@ export async function updateJob(jobData: UpdateJob): Promise<ResponseType> {
 export async function getJobs(): Promise<ResponseType> {
     try {
 
-        const jobs = await prisma.job.findMany({
-            include: {
-                jobApplicationStore: {
-                    select:{
-                        account:{
-                            select:{
-                                email:true
-                            }
-                        }
-                    }
-                }
-            }
-        })
+        const jobs = await prisma.jobApplication.findMany()
 
 
         return {
@@ -164,12 +135,9 @@ export async function getJobs(): Promise<ResponseType> {
 export async function getJob(jobid: string): Promise<ResponseType> {
     try {
 
-        const job = await prisma.job.findUnique({
+        const job = await prisma.jobApplication.findUnique({
             where: {
                 id: jobid
-            },
-            include: {
-                jobApplicationStore: true
             }
         })
 
@@ -190,23 +158,16 @@ export async function getJob(jobid: string): Promise<ResponseType> {
 }
 
 
-export async function getBookmarkedJobsByAccount(accountId: string): Promise<ResponseType> {
+export async function getBookmarkedJobsByAccount(accountId: string, bookmarked:boolean): Promise<ResponseType> {
     try {
 
         const [bookmarkedjob] = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-            let jobstore = await tx.jobApplicationDataStore.findFirst({
+            let bookmarkedjob = await tx.jobApplication.findMany({
                 where: {
-                    accountId: accountId
+                    clientId: accountId,
+                    bookmarked:bookmarked
                 }
             })
-
-            let bookmarkedjob = await tx.job.findMany({
-                where: {
-                    jobAppDataStoreId: jobstore.id,
-                    bookmarked: true
-                }
-            })
-
             return bookmarkedjob
         })
 
@@ -230,29 +191,18 @@ export async function getBookmarkedJobsByAccount(accountId: string): Promise<Res
 
 
 
-export async function deleteJob(jobid: string, accountId: string): Promise<ResponseType> {
+export async function deleteJob(jobid: string): Promise<ResponseType> {
     try {
 
         await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-            let job = await tx.job.findUnique({
+            
+            await tx.jobApplication.delete({
                 where: {
                     id: jobid
                 }
             })
 
-            const jobAppDataStoreId = job.jobAppDataStoreId
-
-            await tx.job.delete({
-                where: {
-                    id: jobid
-                }
-            })
-
-            await tx.jobApplicationDataStore.delete({
-                where: {
-                    id: jobAppDataStoreId
-                }
-            })
+          
 
         })
 

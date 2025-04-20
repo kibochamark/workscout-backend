@@ -7,25 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model Account {
-  id                      String                   @id @default(auto()) @map("_id") @db.ObjectId
-  kindeId                 String                   @unique
-  email                   String                   @unique
-  isOnboarded             Boolean                  @default(false)
-  onboardingstep          OnboardingStep           @default(ONE)
+  id                      String              @id @default(auto()) @map("_id") @db.ObjectId
+  kindeId                 String              @unique
+  email                   String              @unique
+  isOnboarded             Boolean             @default(false)
+  onboardingstep          OnboardingStep      @default(ONE)
   profile                 Profile?
 
-  subscription            Subscription?            @relation(fields: [subscriptionId], references: [id])
-  subscriptionId          String?                  @db.ObjectId
+  subscription            Subscription?       @relation(fields: [subscriptionId], references: [id])
+  subscriptionId          String?             @db.ObjectId
   userNotifications       UserNotification[]
 
- 
+  // Jobs this user (as workscout) has created (applied on behalf of clients)
+  createdApplications     JobApplication[]    @relation("workscoutApplications")
 
-
-
-  JobApplicationDataStore JobApplicationDataStore[] @relation(name: "clientaccount")
-
-  Job Job[] @relation(name: "workscout")
+  // Jobs this user (as client) is tied to
+  receivedApplications    JobApplication[]    @relation("clientApplications")
 }
 
 enum OnboardingStep {
@@ -59,29 +58,31 @@ model Document {
   Profile     Profile[]
 }
 
-model JobApplicationDataStore {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  account   Account @relation(fields: [accountId], references: [id], name: "clientaccount")
-  accountId String  @unique @db.ObjectId
 
-  jobs Job[]
+
+
+model JobApplication {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+
+  jobName      String
+  category     String
+  appliedDate  DateTime
+  deadlineDate DateTime   
+  bookmarked   Boolean    @default(false)
+  status       JobStatus   @default(APPLIED)
+  company      String
+
+  // Workscout who created this application
+  workscout    Account     @relation("workscoutApplications", fields: [workscoutId], references: [id])
+  workscoutId  String      @db.ObjectId
+
+  // Client for whom the application was created
+  client       Account     @relation("clientApplications", fields: [clientId], references: [id])
+  clientId     String      @db.ObjectId
 }
 
-model Job {
-  id                  String                  @id @default(auto()) @map("_id") @db.ObjectId
-  jobApplicationStore JobApplicationDataStore @relation(fields: [jobAppDataStoreId], references: [id])
-  jobAppDataStoreId   String                  @db.ObjectId
 
-  workscout   Account   @relation(fields: [workscoutId], references: [id], name: "workscout")
-  workscoutId String    @db.ObjectId
-  category    String
-  title       String
-  bookmarked  Boolean
-  company     String
-  link        String?
-  status      JobStatus // e.g. APPLIED, SHORTLISTED, HIRED
-  dateApplied DateTime  @default(now())
-}
+
 
 model Subscription {
   id String @id @default(auto()) @map("_id") @db.ObjectId
@@ -118,11 +119,11 @@ enum Role {
 }
 
 enum JobStatus {
-  APPLIED
+  IN_PROGRESS
   SHORTLISTED
-  HIRED
+  APPLIED
+  SUBMITTED
   REJECTED
-
 }
 
 enum Plan {
