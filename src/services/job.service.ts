@@ -12,8 +12,8 @@ type JobApplication = {
     company: string;
     status: JobStatus;
     category: string;
-    appliedDate:  Date;
-    deadlineDate: Date;
+    appliedDate:  string;
+    deadlineDate: string;
 }
 
 
@@ -26,7 +26,7 @@ type UpdateJob = {
     company?: string;
     status?: JobStatus;
     category?: string;
-    deadlineDate?: Date;
+    deadlineDate?: string;
 
 }
 
@@ -49,8 +49,8 @@ export async function createJobApplication(jobData: JobApplication): Promise<Res
                     workscoutId:jobData.workscoutAccountId,
                     status:jobData.status,
                     company:jobData.company,
-                    appliedDate:jobData.appliedDate,
-                    deadlineDate:jobData.deadlineDate,
+                    appliedDate:new Date(jobData.appliedDate),
+                    deadlineDate:new Date(jobData.deadlineDate),
                     bookmarked:jobData.bookmarked
                 }
             })
@@ -89,7 +89,7 @@ export async function updateJob(jobData: UpdateJob): Promise<ResponseType> {
                 bookmarked: jobData.bookmarked,
                 category:jobData.category.toUpperCase(),
                 status: jobData.status,
-                deadlineDate:jobData.deadlineDate
+                deadlineDate:new Date(jobData.deadlineDate),
             }
         })
 
