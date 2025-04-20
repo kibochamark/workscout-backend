@@ -33,14 +33,14 @@ export const handleGetJobById = async (req: Request, res: Response): Promise<any
 };
 
 export const handleGetBookmarkedJobs = async (req: Request, res: Response): Promise<any> => {
-  const { accountId } = req.params;
-  const result = await getBookmarkedJobsByAccount(accountId);
+  const { accountId, bookmarked } = req.params;
+  const result = await getBookmarkedJobsByAccount(accountId, !!bookmarked);
   res.status(result.status).json(result);
 };
 
 export const handleDeleteJob = async (req: Request, res: Response): Promise<any> => {
   const { jobid, accountId } = req.params;
-  const result = await deleteJob(jobid, accountId);
+  const result = await deleteJob(jobid);
   if (result.error) {
     return res.status(result.status).json({ error: result.error });
   }
