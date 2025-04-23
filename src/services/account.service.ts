@@ -216,7 +216,8 @@ export async function getupdateAccountSubscription(subscriptionData: {
                 },
                 data: {
                     subscriptionId: updatedsub.id,
-                    isOnboarded:true
+                    isOnboarded:true,
+                    onboardingstep : "COMPLETED"
                 }
             })
 
