@@ -19,43 +19,54 @@ export const createProfile = async (req: Request, res: Response): Promise<void> 
 
   try {
     // Start a transaction
-    const result = await prisma.$transaction(async (tx:Prisma.TransactionClient) => {
-      // 1. Create the Document first
-    
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // 1. Create the Document
       const newDocument = await tx.document.create({
         data: {
           name: file.originalname,
           contentType: file.mimetype,
           data: file.buffer,
         },
-      })
-  
+      });
+    
       // 2. Find the account by kindeId
-      const account = await prisma.account.findUnique({
+      const account = await tx.account.findUnique({
         where: { kindeId },
       });
-
+    
       if (!account) {
         throw new Error("Account not found.");
       }
-
-      // 3. Create the Profile and link it to the created Document and Account
-      const profile = await prisma.profile.create({
-        data: {
+    
+      // 3. Upsert the Profile
+      const profile = await tx.profile.upsert({
+        where: { accountId: account.id },
+        update: {
           name,
           bio,
-          email: account.email, // Assuming the Profile should use the Account's email
-          gender: "", // You can add other fields based on your request body
+          email: account.email,
+          gender: "", // You can allow gender/location update if needed
           location: "",
           salary: "",
           jobtitle: "",
-          documentId: newDocument.id, // Link the newly created Document by its ID
-          accountId: account.id, // Link the Account by its ID
+          documentId: newDocument.id, // Update with the new document
+        },
+        create: {
+          name,
+          bio,
+          email: account.email,
+          gender: "",
+          location: "",
+          salary: "",
+          jobtitle: "",
+          documentId: newDocument.id,
+          accountId: account.id,
         },
       });
-
+    
       return { profile, newDocument };
     });
+    
 
     // Return the created profile
     res.status(201).json(result.profile);
