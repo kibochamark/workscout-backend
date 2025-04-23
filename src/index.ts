@@ -25,6 +25,7 @@ app.use(bodyParser.json());
 app.use(cors(
     {
         origin: 'https://workscout-ui.vercel.app',
+        // origin: 'http://localhost:3000',
         credentials: true, // if you're using cookies
 }
 ));

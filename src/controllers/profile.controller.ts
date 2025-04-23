@@ -5,7 +5,9 @@ import { prisma } from "../utils/prisma/client";
 
 export const createProfile = async (req: Request, res: Response): Promise<void> => {
   
-  const { name, bio, document, kindeId } = req.body;
+  const { name, bio, document, kindeId, gender, salary, jobtitle, location } = req.body;
+
+  console.log(req.body, "body")
 
 
 
@@ -45,20 +47,20 @@ export const createProfile = async (req: Request, res: Response): Promise<void> 
           name,
           bio,
           email: account.email,
-          gender: "", // You can allow gender/location update if needed
-          location: "",
-          salary: "",
-          jobtitle: "",
-          documentId: newDocument.id, // Update with the new document
+          gender, 
+          location,
+          salary,
+          jobtitle,
+          documentId: newDocument.id, 
         },
         create: {
           name,
           bio,
           email: account.email,
-          gender: "",
-          location: "",
-          salary: "",
-          jobtitle: "",
+          gender,
+          location,
+          salary,
+          jobtitle,
           documentId: newDocument.id,
           accountId: account.id,
         },
