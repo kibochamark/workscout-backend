@@ -80,3 +80,56 @@ export const createProfile = async (req: Request, res: Response): Promise<void> 
     }
   }
 };
+
+
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
+  const { kindeId } = req.params; // Assuming you send kindeId in URL
+
+  try {
+    // Find the account first
+    const account = await prisma.account.findUnique({
+      where: { kindeId },
+    });
+
+    if (!account) {
+      res.status(404).json({ error: "Account not found." });
+      return;
+    }
+
+    // Find the profile linked to that account
+    const profile = await prisma.profile.findUnique({
+      where: { accountId: account.id },
+      include: {
+        account: {
+          include: {
+            subscription: true,
+            userNotifications: {
+              include: {
+                notification: true,
+              },
+            },
+            createdApplications: true,
+            receivedApplications: true,
+          },
+        },
+        document: true,
+      },
+    });
+
+    if (!profile) {
+      res.status(404).json({ error: "Profile not found." });
+      return;
+    }
+
+    res.status(200).json(profile);
+
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(error.message);
+      res.status(500).json({ error: error.message || "Something went wrong." });
+    } else {
+      console.error("Unexpected error:", error);
+      res.status(500).json({ error: "Something went wrong." });
+    }
+  }
+};

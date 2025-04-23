@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 
 import { createAccount,onboardingStatusController, UpdateAccountOnboardingController } from "../controllers/account.controller";
 import { upload } from "../utils/fileUpload/multerupload";
-import { createProfile } from "../controllers/profile.controller";
+import { createProfile, getProfile } from "../controllers/profile.controller";
 import {
   handleGetAccountByEmail,
   handleGetAccountByCustomerId,
@@ -29,6 +29,8 @@ const routes = Router();
 
 routes.post("/account", createAccount);
 routes.post("/create", upload.single("file"), createProfile);
+routes.get("/profile/:kindeId", getProfile);
+
 
 
 
