@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors(
     {
-        origin: 'https://workscout-backend.vercel.app',
+        origin: 'https://workscout-ui.vercel.app',
         credentials: true, // if you're using cookies
 }
 ));
