@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../utils/prisma/client";
-import { getOnboardingStatus, updateOnboardingStatus } from "../services/onboarding.service";
+import { getOnboardingStatus, getOnboardingStep, updateOnboardingStatus } from "../services/onboarding.service";
 
 export async function createAccount(req: Request, res: Response): Promise<void> {
   // console.log(req.body, "body");
@@ -41,6 +41,22 @@ export const onboardingStatusController = async (req: Request, res: Response): P
   try {
     if (error) {
       return res.status(404).json({ error: error });
+    }
+
+    res.status(200).json({ data: data });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error while checking onboarding status." });
+  }
+}
+
+
+export const onboardingStepController = async (req: Request, res: Response): Promise<any> => {
+  const { kindeId } = req.body;
+
+  const { error, data } = await getOnboardingStep(kindeId);
+  try {
+    if (error) {
+      return res.status(400).json({ error: error });
     }
 
     res.status(200).json({ data: data });

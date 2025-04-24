@@ -112,7 +112,15 @@ export async function updateJob(jobData: UpdateJob): Promise<ResponseType> {
 export async function getJobs(): Promise<ResponseType> {
     try {
 
-        const jobs = await prisma.jobApplication.findMany()
+        const jobs = await prisma.jobApplication.findMany({
+            include:{
+                workscout:{
+                    select:{
+                        email:true
+                    }
+                }
+            }
+        })
 
 
         return {

@@ -36,6 +36,34 @@ export async function getOnboardingStatus(kindeId: string):Promise<OnboardingSta
 }
 
 
+export async function getOnboardingStep(kindeId: string):Promise<OnboardingStatusType> {
+    try {
+        // fetch user acc
+        const acc = await prisma.account.findUnique({
+            where: {
+                kindeId
+            }
+        })
+
+        if (!acc) {
+            throw new Error("Account not found")
+        }
+
+
+        return {
+            error: "",
+            data: acc.onboardingstep
+        }
+
+    } catch (e: any) {
+        return {
+            "error": e?.message,
+            data: ""
+        }
+    }
+}
+
+
 export async function updateOnboardingStatus(kindeId: string, onboardingdata:{
     isOnboarded:boolean,
     onboardingstep:"ONE"|"TWO"|"THREE"|"COMPLETED"

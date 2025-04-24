@@ -9,6 +9,12 @@ type AccountType = {
     data: any;
 }
 
+type ResponseType = {
+    data: any;
+    error: string;
+    status: number
+}
+
 
 export async function getaccountSubscriptionStatus(kindeId: string): Promise<AccountType> {
     try {
@@ -53,6 +59,7 @@ export async function createaccountSubscription(subscriptionData: {
     email: string;
 }): Promise<AccountType> {
     try {
+        console.log(subscriptionData, 'subdara')
         // perform a transaction to ensure ACID when data is affected in two tables
 
         const [subscription, account] = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -109,6 +116,13 @@ export async function getaccountbyemail(email: string): Promise<AccountType> {
         const acc = await prisma.account.findUnique({
             where: {
                 email
+            },
+            include:{
+                subscription:{
+                    select:{
+                        stripecustomerId:true
+                    }
+                }
             }
         })
 
@@ -237,6 +251,58 @@ export async function getupdateAccountSubscription(subscriptionData: {
         return {
             "error": e?.message,
             data: ""
+        }
+    }
+}
+
+
+
+export async function deleteAccountSubscription(email: string): Promise<ResponseType> {
+    try {
+
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+            
+            const acc = await tx.account.findUnique({
+                where: {
+                    email:email
+                }
+            })
+
+            if(acc.subscriptionId){
+                throw new Error("user is not subscribed")
+            }
+
+            await tx.subscription.delete({
+                where:{
+                    id:acc.subscriptionId
+                }
+            })
+
+            await tx.account.update({
+                where:{
+                    email:email
+                },
+                data:{
+                    onboardingstep:"THREE",
+                    isOnboarded:false
+                }
+            })
+
+          
+
+        })
+
+        return {
+            error: "",
+            data: "deleted sucessfully",
+            status: 200
+        }
+
+    } catch (e: any) {
+        return {
+            "error": e?.message,
+            data: "",
+            status: 400
         }
     }
 }

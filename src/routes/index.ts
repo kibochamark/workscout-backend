@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 
-import { createAccount,onboardingStatusController, UpdateAccountOnboardingController } from "../controllers/account.controller";
+import { createAccount,onboardingStatusController, onboardingStepController, UpdateAccountOnboardingController } from "../controllers/account.controller";
 import { upload } from "../utils/fileUpload/multerupload";
 import { createProfile, getProfile } from "../controllers/profile.controller";
 import {
@@ -8,7 +8,8 @@ import {
   handleGetAccountByCustomerId,
   handleCreateAccountSubscription,
   handleGetSubscriptionStatus,
-  handleUpdateSubscription
+  handleUpdateSubscription,
+  handleAccountSubscriptionDeletion
 } from "../controllers/subscription.controller";
 
 import validate from "../middleware/validate";
@@ -43,8 +44,10 @@ routes.get("/customer/:customerId", validate(getAccountByCustomerIdSchema, "para
 routes.post("/subscription", validate(createAccountSubscriptionSchema), handleCreateAccountSubscription);
 routes.post("/status", requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), handleGetSubscriptionStatus);
 routes.put("/subscription",  validate(updateSubscriptionSchema), handleUpdateSubscription);
+routes.delete("/subscription/:email", requireAuthAndEnsureAccount,  validate(getAccountByEmailSchema,"params"), handleAccountSubscriptionDeletion);
 
 routes.post("/onboardingstatus",requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), onboardingStatusController);
+routes.post("/onboardingstep",requireAuthAndEnsureAccount, validate(getSubscriptionStatusSchema), onboardingStepController);
 routes.put("/updateonboardingstatus",requireAuthAndEnsureAccount, validate(updateAccountOnboardingSchema), UpdateAccountOnboardingController)
 
 
