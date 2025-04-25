@@ -13,12 +13,12 @@ const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: 'https://workscout-ui.vercel.app', credentials: true },
+  cors: { origin: 'http://localhost:3000', credentials: true },
 });
 
 const onlineUsers = new Map<string, string>();
 
-app.use(cors({ origin: 'https://workscout-ui.vercel.app', credentials: true }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(bodyParser.json());
 app.use(compression());
 app.use(cookieParser());
@@ -34,9 +34,28 @@ io.on("connection", (socket) => {
     io.emit("onlineUsers", Array.from(onlineUsers.keys()));
   });
 
-  socket.on("joinRoom", (roomId: string) => {
+  socket.on("joinRoom", async (roomId: string) => {
     socket.join(roomId);
     console.log(`Joined room: ${roomId}`);
+
+    // Send chat history to the newly joined client
+    try {
+      const messages = await prisma.chatMessage.findMany({
+        where: { roomId },
+        orderBy: { createdAt: 'asc' },
+        include: { sender: true },
+      });
+
+      const formattedMessages = messages.map(msg => ({
+        content: msg.content,
+        senderId: msg.sender.kindeId,
+        createdAt: msg.createdAt,
+      }));
+
+      socket.emit("chatHistory", formattedMessages);
+    } catch (error) {
+      console.error("Failed to fetch chat history:", error);
+    }
   });
 
   socket.on("typing", ({ roomId, senderId }) => {
@@ -66,7 +85,7 @@ io.on("connection", (socket) => {
 
       console.log("Message saved:", message);
 
-      //  Emit to room
+      // Emit to room
       io.to(roomId).emit("receiveMessage", {
         content: message.content,
         senderId: account.kindeId,
