@@ -24,6 +24,8 @@ import {
 import { requireAuthAndEnsureAccount } from "../middleware/kinde/kindeverify";
 import { accountIdSchema, createJobSchema, deleteJobSchema, getJobSchema, updateJobSchema } from "../validators/jobSchema.validator";
 import { handleCreateJob, handleDeleteJob, handleGetAllJobs, handleGetBookmarkedJobs, handleGetJobById, handleUpdateJob } from "../controllers/job.controller";
+import { createChatRoom } from "../controllers/chatroom.controller";
+
 
 const routes = Router();
 
@@ -32,7 +34,7 @@ routes.post("/account", createAccount);
 routes.post("/create", upload.single("file"), createProfile);
 routes.get("/profile/:kindeId", getProfile);
 
-
+routes.post("/create-room", createChatRoom);
 
 
  

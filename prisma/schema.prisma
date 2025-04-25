@@ -24,7 +24,11 @@ model Account {
   createdApplications     JobApplication[]    @relation("workscoutApplications")
 
   // Jobs this user (as client) is tied to
-  receivedApplications    JobApplication[]    @relation("clientApplications")
+  receivedApplications    JobApplication[]    @relation("clientApplications") 
+
+  chatParticipations      ChatParticipant[]   
+  chatMessages            ChatMessage[]      
+
 }
 
 enum OnboardingStep {
@@ -92,6 +96,34 @@ model Subscription {
   stripecustomerId String?
 
   Account Account[]
+}
+
+model ChatRoom {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  participants ChatParticipant[] @relation("roomParticipants")
+  messages     ChatMessage[]     @relation("roomMessages")
+}
+
+model ChatParticipant {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId String   @db.ObjectId
+  room      ChatRoom @relation("roomParticipants", fields: [roomId], references: [id])
+  roomId    String   @db.ObjectId
+  joinedAt  DateTime @default(now())
+}
+
+model ChatMessage {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  content    String
+  createdAt  DateTime @default(now())
+  read       Boolean  @default(false)
+  sender     Account  @relation(fields: [senderId], references: [id])
+  senderId   String   @db.ObjectId
+  room       ChatRoom @relation("roomMessages", fields: [roomId], references: [id])
+  roomId     String   @db.ObjectId
 }
 
 model Notification {
