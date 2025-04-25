@@ -13,12 +13,12 @@ const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: 'http://localhost:3000', credentials: true },
+  cors: { origin: 'https://workscout-ui.vercel.app', credentials: true },
 });
 
 const onlineUsers = new Map<string, string>();
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({ origin: 'https://workscout-ui.vercel.app', credentials: true }));
 app.use(bodyParser.json());
 app.use(compression());
 app.use(cookieParser());
