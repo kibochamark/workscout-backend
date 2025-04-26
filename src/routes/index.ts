@@ -24,7 +24,8 @@ import {
 import { requireAuthAndEnsureAccount } from "../middleware/kinde/kindeverify";
 import { accountIdSchema, createJobSchema, deleteJobSchema, getJobSchema, updateJobSchema } from "../validators/jobSchema.validator";
 import { handleCreateJob, handleDeleteJob, handleGetAllJobs, handleGetBookmarkedJobs, handleGetJobById, handleUpdateJob } from "../controllers/job.controller";
-import { createChatRoom } from "../controllers/chatroom.controller";
+import { createChatRoom, handleGetUnreadMessages } from "../controllers/chatroom.controller";
+import { messageSchema } from "../validators/chatSchema.validators";
 
 
 const routes = Router();
@@ -33,6 +34,7 @@ const routes = Router();
 routes.post("/account", createAccount);
 routes.post("/create", upload.single("file"), createProfile);
 routes.get("/profile/:kindeId", getProfile);
+
 
 routes.post("/create-room", createChatRoom);
 
@@ -61,6 +63,8 @@ routes.get("/job/:jobid", requireAuthAndEnsureAccount, validate(getJobSchema, "p
 routes.get("/job/bookmarked/:accountId", requireAuthAndEnsureAccount, validate(accountIdSchema, "params"), handleGetBookmarkedJobs);
 routes.delete("/job/:jobid/:accountId", requireAuthAndEnsureAccount, validate(deleteJobSchema, "params"), handleDeleteJob);
 
+
+routes.get("/messages/unread/:kindeId", requireAuthAndEnsureAccount, validate(messageSchema), handleGetUnreadMessages)
 
 // routes.get("/protected", requireAuthAndEnsureAccount, (req: Request, res: Response) => {
 

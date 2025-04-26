@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma/client";
+import { getUnreadMessages } from "../services/chat.service";
 
 /**
  * Create or retrieve an existing chat room between two participants
@@ -83,3 +84,8 @@ export const createChatRoom = async (req: Request, res: Response): Promise<void>
     }
   };
   
+export const handleGetUnreadMessages = async (req: Request, res: Response) => {
+  const kindeId = req.params.kindeId
+  const result = await getUnreadMessages(kindeId);
+  res.status(result.status).json(result);
+};
