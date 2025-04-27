@@ -13,7 +13,11 @@ const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: 'https://workscout-ui.vercel.app', credentials: true },
+  cors: {
+    origin: 'https://workscout-ui.vercel.app',
+    methods: ["GET", "POST"],
+    credentials: true
+  },
 });
 
 const onlineUsers = new Map<string, string>();
