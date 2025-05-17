@@ -1,0 +1,10 @@
+
+POST http://localhost:9290/api/v1/message
+Content-Type: application/json
+
+{
+  "roomId": "6828604249b1763d48d919a9",
+  "content": "Hello!",
+  "senderId": "6809eba6d74aa0d7bf9217fa",
+  "receiverId": "6809eba6d74aa0d7bf9217fa"
+}

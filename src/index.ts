@@ -14,15 +14,27 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'https://workscout-ui.vercel.app',
-    methods: ["GET", "POST"],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:9290",
+        "https://workscout-ui.vercel.app",
+      ];
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+      methods: ["GET", "POST"],
     credentials: true
   },
 });
 
 const onlineUsers = new Map<string, string>();
 
-app.use(cors({ origin: 'https://workscout-ui.vercel.app', credentials: true }));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(compression());
 app.use(cookieParser());
@@ -100,6 +112,41 @@ io.on("connection", (socket) => {
     }
   });
 
+
+  // Handle message sending
+  socket.on('sendNewMessage', async ({ conversationId, recipientId, senderId, content }) => {
+    try {
+      console.log(conversationId, recipientId, senderId, content);
+      // 1. Save to DB using your chatMessage.create logic
+      const message = await prisma.chatNewMessage.create({
+        data: {
+          content,
+          senderId,
+          conversationId,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              profile: {
+                select: { name: true, email: true },
+              },
+            },
+          },
+        },
+      });
+
+      // 2. Emit to recipient’s room
+      io.to(recipientId).emit('receiveMessage', message);
+
+      // Optional: also emit back to sender to confirm
+      socket.emit('messageSent', message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      socket.emit('error', 'Failed to send message');
+    }
+  });
+
   socket.on("disconnect", () => {
     for (const [kindeId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
@@ -113,6 +160,6 @@ io.on("connection", (socket) => {
 });
 
 // Start server
-server.listen(8000, () => {
+server.listen(9290, () => {
   console.log(`Server is running on port 8000`);
 });

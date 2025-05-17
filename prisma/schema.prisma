@@ -7,28 +7,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Account {
-  id                      String              @id @default(auto()) @map("_id") @db.ObjectId
-  kindeId                 String              @unique
-  email                   String              @unique
-  isOnboarded             Boolean             @default(false)
-  onboardingstep          OnboardingStep      @default(ONE)
-  profile                 Profile?
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  kindeId        String         @unique
+  email          String         @unique
+  isOnboarded    Boolean        @default(false)
+  onboardingstep OnboardingStep @default(ONE)
+  profile        Profile?
 
-  subscription            Subscription?       @relation(fields: [subscriptionId], references: [id])
-  subscriptionId          String?             @db.ObjectId
-  userNotifications       UserNotification[]
+  subscription      Subscription?      @relation(fields: [subscriptionId], references: [id])
+  subscriptionId    String?            @db.ObjectId
+  userNotifications UserNotification[]
 
   // Jobs this user (as workscout) has created (applied on behalf of clients)
-  createdApplications     JobApplication[]    @relation("workscoutApplications")
+  createdApplications JobApplication[] @relation("workscoutApplications")
 
   // Jobs this user (as client) is tied to
-  receivedApplications    JobApplication[]    @relation("clientApplications") 
+  receivedApplications JobApplication[] @relation("clientApplications")
 
-  chatParticipations      ChatParticipant[]   
-  chatMessages            ChatMessage[]      
+  chatParticipations ChatParticipant[]
+  chatMessages       ChatMessage[]
 
+  ChatNewParticipant ChatNewParticipant[]
+
+  ChatNewMessage ChatNewMessage[]
+
+  Notification Notification[]
+
+  receieverMessage Message[] @relation(name: "receiver")
+
+  senderMessage Message[] @relation(name: "sender")
 }
 
 enum OnboardingStep {
@@ -62,31 +70,25 @@ model Document {
   Profile     Profile[]
 }
 
-
-
-
 model JobApplication {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   jobName      String
   category     String
   appliedDate  DateTime
-  deadlineDate DateTime   
-  bookmarked   Boolean    @default(false)
-  status       JobStatus   @default(APPLIED)
+  deadlineDate DateTime
+  bookmarked   Boolean   @default(false)
+  status       JobStatus @default(APPLIED)
   company      String
 
   // Workscout who created this application
-  workscout    Account     @relation("workscoutApplications", fields: [workscoutId], references: [id])
-  workscoutId  String      @db.ObjectId
+  workscout   Account @relation("workscoutApplications", fields: [workscoutId], references: [id])
+  workscoutId String  @db.ObjectId
 
   // Client for whom the application was created
-  client       Account     @relation("clientApplications", fields: [clientId], references: [id])
-  clientId     String      @db.ObjectId
+  client   Account @relation("clientApplications", fields: [clientId], references: [id])
+  clientId String  @db.ObjectId
 }
-
-
-
 
 model Subscription {
   id String @id @default(auto()) @map("_id") @db.ObjectId
@@ -104,33 +106,93 @@ model ChatRoom {
   updatedAt    DateTime          @updatedAt
   participants ChatParticipant[] @relation("roomParticipants")
   messages     ChatMessage[]     @relation("roomMessages")
+
+  Message Message[] @relation(name: "room")
 }
 
 model ChatParticipant {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  account   Account  @relation(fields: [accountId], references: [id])
-  accountId String   @db.ObjectId
-  room      ChatRoom @relation("roomParticipants", fields: [roomId], references: [id])
-  roomId    String   @db.ObjectId
-  joinedAt  DateTime @default(now())
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  account    Account   @relation(fields: [accountId], references: [id])
+  accountId  String    @db.ObjectId
+  room       ChatRoom  @relation("roomParticipants", fields: [roomId], references: [id])
+  roomId     String    @db.ObjectId
+  joinedAt   DateTime  @default(now())
+  lastSeenAt DateTime?
 }
 
 model ChatMessage {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  content    String
-  createdAt  DateTime @default(now())
-  read       Boolean  @default(false)
-  sender     Account  @relation(fields: [senderId], references: [id])
-  senderId   String   @db.ObjectId
-  room       ChatRoom @relation("roomMessages", fields: [roomId], references: [id])
-  roomId     String   @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+  sender    Account  @relation(fields: [senderId], references: [id])
+  senderId  String   @db.ObjectId
+  room      ChatRoom @relation("roomMessages", fields: [roomId], references: [id])
+  roomId    String   @db.ObjectId
+
+  isRead Boolean @default(false)
+}
+
+model ChatConversation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String? // Optional: only used for group chats
+  isGroup   Boolean  @default(false)
+
+  participants ChatNewParticipant[]
+  messages     ChatNewMessage[]
+}
+
+model ChatNewParticipant {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String  @db.ObjectId
+
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id])
+  conversationId String           @db.ObjectId
+
+  joinedAt   DateTime  @default(now())
+  lastSeenAt DateTime?
+}
+
+model ChatNewMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+
+  sender   Account @relation(fields: [senderId], references: [id])
+  senderId String  @db.ObjectId
+
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id])
+  conversationId String           @db.ObjectId
+
+  isRead Boolean @default(false)
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+
+  sender   Account @relation(fields: [senderId], references: [id], name: "sender")
+  senderId String  @db.ObjectId
+
+  receiver   Account @relation(fields: [receiverId], references: [id], name: "receiver")
+  receiverId String  @db.ObjectId
+
+  room   ChatRoom @relation(fields: [roomId], references: [id], name: "room")
+  roomId String   @db.ObjectId
 }
 
 model Notification {
   id                String             @id @default(auto()) @map("_id") @db.ObjectId
-  title             String
-  message           String
+  content             String
+  messageId         String             @db.ObjectId
+  receiver          Account            @relation(fields: [receiverId], references: [id])
+  receiverId        String             @db.ObjectId
   createdAt         DateTime           @default(now())
+  deleted         Boolean @default(false)
   userNotifications UserNotification[]
 }
 

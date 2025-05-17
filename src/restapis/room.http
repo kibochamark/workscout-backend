@@ -1,0 +1,7 @@
+POST http://localhost:9290/api/v1/room
+Content-Type: application/json
+
+{
+
+}
+

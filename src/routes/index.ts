@@ -27,6 +27,28 @@ import { handleCreateJob, handleDeleteJob, handleGetAllJobs, handleGetBookmarked
 import { createChatRoom, handleGetUnreadMessages } from "../controllers/chatroom.controller";
 import { messageSchema } from "../validators/chatSchema.validators";
 
+import {
+  createRoomController,
+  creetaMessageController,
+  getMessagesController,
+  getMessageController,
+  getNotificationsController,
+  readNotificationController,
+  readNotificationsController,
+  deleteMessageController,
+  deleteRoomController
+} from "../controllers/chat.controller";
+import {
+  createMessageSchema,
+  getMessagesSchema,
+  getMessageSchema,
+  getNotificationsSchema,
+  readNotificationSchema,
+  readNotificationsSchema,
+  deleteMessageSchema,
+  deleteRoomSchema
+} from "../validators/newchatschema.validators";
+
 
 const routes = Router();
 
@@ -65,6 +87,29 @@ routes.delete("/job/:jobid/:accountId", requireAuthAndEnsureAccount, validate(de
 
 
 routes.get("/messages/unread/:kindeId", requireAuthAndEnsureAccount, validate(messageSchema), handleGetUnreadMessages)
+
+
+
+routes.post("/room", createRoomController);
+
+routes.post("/message", validate(createMessageSchema, "body"), creetaMessageController);
+
+routes.get("/messages/:roomId", validate(getMessagesSchema, "params"), getMessagesController);
+
+routes.get("/message/:messageId", validate(getMessageSchema, "params"), getMessageController);
+
+routes.get("/notifications/:accountId", validate(getNotificationsSchema, "params"), getNotificationsController);
+
+routes.delete("/notification/:notificationId", validate(readNotificationSchema, "params"), readNotificationController);
+
+routes.post("/notifications/read", validate(readNotificationsSchema, "body"), readNotificationsController);
+
+routes.delete("/message/:messageId", validate(deleteMessageSchema, "params"), deleteMessageController);
+
+routes.delete("/room/:roomId", validate(deleteRoomSchema, "params"), deleteRoomController);
+
+
+
 
 // routes.get("/protected", requireAuthAndEnsureAccount, (req: Request, res: Response) => {
 
