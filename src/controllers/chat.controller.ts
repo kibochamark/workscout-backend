@@ -1,7 +1,7 @@
 // create room controller
 
 import { Request, Response } from "express";
-import { createroom, getMessages, sendMessage, getMessage, getNotifications, deleteNotification, deleteManyNotifications, deleteMessage, deleteRoom } from "../services/newchat.service";
+import { createroom, getMessages, sendMessage, getMessage, getNotifications, deleteNotification, deleteManyNotifications, deleteMessage, deleteRoom, getAllMessages } from "../services/newchat.service";
 
 export async function createRoomController(req: Request, res: Response): Promise<void> {
 
@@ -35,6 +35,16 @@ export async function getMessagesController(req: Request, res: Response): Promis
     res.status(messages.status).json(messages); 
 }
 
+
+export async function getAllMessagesController(req: Request, res: Response): Promise<void> {
+
+    const { userid } = req.params;
+    const messages = await getAllMessages(userid);
+    if (messages.error) {
+        res.status(messages.status).json({ error: messages.error });
+    }
+    res.status(messages.status).json(messages); 
+}
 
 export async function getMessageController(req: Request, res: Response): Promise<void> {
     const { messageId } = req.params;

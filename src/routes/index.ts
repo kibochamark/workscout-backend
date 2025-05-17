@@ -36,7 +36,8 @@ import {
   readNotificationController,
   readNotificationsController,
   deleteMessageController,
-  deleteRoomController
+  deleteRoomController,
+  getAllMessagesController
 } from "../controllers/chat.controller";
 import {
   createMessageSchema,
@@ -46,7 +47,8 @@ import {
   readNotificationSchema,
   readNotificationsSchema,
   deleteMessageSchema,
-  deleteRoomSchema
+  deleteRoomSchema,
+  getAllMessagesSchema
 } from "../validators/newchatschema.validators";
 
 
@@ -93,6 +95,8 @@ routes.get("/messages/unread/:kindeId", requireAuthAndEnsureAccount, validate(me
 routes.post("/room", createRoomController);
 
 routes.post("/message", validate(createMessageSchema, "body"), creetaMessageController);
+
+routes.get("/allmessages/:userid", validate(getAllMessagesSchema, "params"), getAllMessagesController);
 
 routes.get("/messages/:roomId", validate(getMessagesSchema, "params"), getMessagesController);
 

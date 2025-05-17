@@ -1,0 +1,6 @@
+POST http://localhost:8000/api/v1/notifications/read
+Content-Type: application/json
+
+{
+  "notifications": ["notif1", "notif2", "notif3"]
+}

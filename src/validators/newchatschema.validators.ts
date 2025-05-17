@@ -13,6 +13,10 @@ export const getMessagesSchema = Joi.object({
   roomId: Joi.string().required()
 });
 
+export const getAllMessagesSchema = Joi.object({
+  userid: Joi.string().required()
+});
+
 // Get single message
 export const getMessageSchema = Joi.object({
   messageId: Joi.string().required()

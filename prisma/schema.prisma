@@ -175,6 +175,8 @@ model Message {
   content   String
   createdAt DateTime @default(now())
 
+  read      Boolean  @default(false)
+
   sender   Account @relation(fields: [senderId], references: [id], name: "sender")
   senderId String  @db.ObjectId
 

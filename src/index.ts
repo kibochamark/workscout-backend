@@ -17,7 +17,7 @@ const io = new Server(server, {
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:3000",
-        "http://localhost:9290",
+        "http://localhost:9291",
         "https://workscout-ui.vercel.app",
       ];
 
@@ -160,6 +160,6 @@ io.on("connection", (socket) => {
 });
 
 // Start server
-server.listen(9290, () => {
+server.listen(9291, () => {
   console.log(`Server is running on port 8000`);
 });
