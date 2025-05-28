@@ -9,6 +9,8 @@ import cookieParser from "cookie-parser";
 import routes from "./routes";
 import { PrismaClient } from "@prisma/client";
 
+
+const PORT = process.env.PORT || 8000;
 const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +19,7 @@ const io = new Server(server, {
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:3000",
+        "http://localhost:8000",
         "http://localhost:9291",
         "https://workscout-ui.vercel.app",
       ];
@@ -160,6 +163,6 @@ io.on("connection", (socket) => {
 });
 
 // Start server
-server.listen(9291, () => {
-  console.log(`Server is running on port 8000`);
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
